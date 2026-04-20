@@ -9,7 +9,6 @@
 
 <nav class="navbar">
   <div class="logo">⚡ Auctora</div>
-
   <ul class="nav-links">
     <li><a href="index.html">Home</a></li>
     <li><a href="auction.html">Auctions</a></li>
@@ -17,13 +16,23 @@
   </ul>
 </nav>
 
-<h2 class="title">Your Dashboard</h2>
+<h2 class="title">Dashboard</h2>
 
-<div class="card">
-  <p>
-     Highest Bid: $0</p>
-  <p>Active Auctions: 0</p>
+<div class="grid">
+  <div class="card">
+    <h3>Total Bids</h3>
+    <p id="totalBids"></p>
+  </div>
+
+  <div class="card">
+    <h3>Highest Bid</h3>
+    <p id="highestBid"></p>
+  </div>
 </div>
 
+<h3 class="title">Your Bids</h3>
+<div id="bidList" class="grid"></div>
+
+<script src="script.js"></script>
 </body>
 </html>
