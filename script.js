@@ -1,16 +1,42 @@
 const API = "https://dummyjson.com/products";
-const USD_TO_KES = 160;
+const USD_TO_KES = 129;
+
+
+function login() {
+  const user = document.getElementById("username").value;
+  const pass = document.getElementById("password").value;
+  const error = document.getElementById("error");
+
+  if (user === "admin" && pass === "1234") {
+    localStorage.setItem("admin", "true");
+    window.location.href = "dashboard.html";
+  } else {
+    error.innerText = "Invalid credentials";
+  }
+}
+
+function protectAdmin() {
+  const isAdmin = localStorage.getItem("admin");
+  if (!isAdmin && window.location.pathname.includes("dashboard")) {
+    window.location.href = "login.html";
+  }
+}
+
+function logout() {
+  localStorage.removeItem("admin");
+  window.location.href = "login.html";
+}
+
 
 document.addEventListener("DOMContentLoaded", () => {
-  loadAuctions();   // runs only on auction page
-  loadDashboard();  // runs only on dashboard page
+  protectAdmin();
+  loadAuctions();
+  loadDashboard();
 });
 
-
-// 🛒 AUCTIONS PAGE
 async function loadAuctions() {
   const container = document.getElementById("auctions");
-  if (!container) return; // prevents running on other pages
+  if (!container) return;
 
   const res = await fetch(API);
   const data = await res.json();
@@ -26,8 +52,6 @@ async function loadAuctions() {
     div.innerHTML = `
       <h3>${item.title}</h3>
       <p>Starting Price: KSh ${priceKES.toLocaleString()}</p>
-
-      <input id="bid-${item.id}" type="number" placeholder="Your bid (KSh)">
       <button onclick="bid(${priceKES}, ${item.id})">Place Bid</button>
     `;
 
@@ -35,44 +59,37 @@ async function loadAuctions() {
   });
 }
 
-
-// 💰 SAVE BID (localStorage)
 function bid(currentPrice, id) {
   const amount = Number(prompt("Enter your bid in KSh:"));
 
   if (amount > currentPrice) {
-    alert("Bid accepted!");
-
     let bids = JSON.parse(localStorage.getItem("bids")) || {};
     bids[id] = amount;
-
     localStorage.setItem("bids", JSON.stringify(bids));
+    alert("Bid accepted!");
   } else {
     alert("Bid too low!");
   }
 }
 
+/* ---------------- DASHBOARD ---------------- */
 
-// 📊 DASHBOARD PAGE
 function loadDashboard() {
   const totalBids = document.getElementById("totalBids");
   const highestBid = document.getElementById("highestBid");
   const bidList = document.getElementById("bidList");
 
-  // prevent running on other pages
   if (!totalBids || !highestBid || !bidList) return;
 
   const bids = JSON.parse(localStorage.getItem("bids")) || {};
   const values = Object.values(bids);
 
   totalBids.innerText = values.length;
-
-  const highest = values.length ? Math.max(...values) : 0;
-  highestBid.innerText = "KSh " + highest.toLocaleString();
+  highestBid.innerText = "KSh " + (values.length ? Math.max(...values) : 0).toLocaleString();
 
   bidList.innerHTML = "";
 
-  if (!values.length) {
+  if (values.length === 0) {
     bidList.innerHTML = "<p>No bids yet</p>";
     return;
   }
@@ -84,8 +101,29 @@ function loadDashboard() {
     card.innerHTML = `
       <h4>Item ID: ${id}</h4>
       <p>Bid: KSh ${amount.toLocaleString()}</p>
+      <button onclick="deleteBid('${id}')">Delete</button>
     `;
 
     bidList.appendChild(card);
   });
+
+  if (!document.getElementById("clearBtn")) {
+    const btn = document.createElement("button");
+    btn.id = "clearBtn";
+    btn.innerText = "Clear All Bids";
+    btn.onclick = clearBids;
+    document.body.appendChild(btn);
+  }
+}
+
+function deleteBid(id) {
+  let bids = JSON.parse(localStorage.getItem("bids")) || {};
+  delete bids[id];
+  localStorage.setItem("bids", JSON.stringify(bids));
+  loadDashboard();
+}
+
+function clearBids() {
+  localStorage.removeItem("bids");
+  loadDashboard();
 }
