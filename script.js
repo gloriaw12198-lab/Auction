@@ -1,23 +1,34 @@
 const API = "https://dummyjson.com/products";
-const USD_TO_KES = 129;
+const USD_TO_KES = 160;
+
+function convertToKES(usd) {
+  return Math.round(usd * USD_TO_KES);
+}
+
+function isValidBid(currentPrice, bidAmount) {
+  return bidAmount > currentPrice;
+}
+
+function saveBid(bids, id, amount) {
+  return { ...bids, [id]: amount };
+}
+
 
 
 function login() {
   const user = document.getElementById("username").value;
   const pass = document.getElementById("password").value;
-  const error = document.getElementById("error");
 
   if (user === "admin" && pass === "1234") {
     localStorage.setItem("admin", "true");
     window.location.href = "dashboard.html";
   } else {
-    error.innerText = "Invalid credentials";
+    document.getElementById("error").innerText = "Invalid credentials";
   }
 }
 
 function protectAdmin() {
-  const isAdmin = localStorage.getItem("admin");
-  if (!isAdmin && window.location.pathname.includes("dashboard")) {
+  if (!localStorage.getItem("admin") && window.location.pathname.includes("dashboard")) {
     window.location.href = "login.html";
   }
 }
@@ -26,6 +37,7 @@ function logout() {
   localStorage.removeItem("admin");
   window.location.href = "login.html";
 }
+
 
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -44,15 +56,15 @@ async function loadAuctions() {
   container.innerHTML = "";
 
   data.products.slice(0, 9).forEach(item => {
-    const priceKES = Math.round(item.price * USD_TO_KES);
+    const price = convertToKES(item.price);
 
     const div = document.createElement("div");
     div.className = "card";
 
     div.innerHTML = `
       <h3>${item.title}</h3>
-      <p>Starting Price: KSh ${priceKES.toLocaleString()}</p>
-      <button onclick="bid(${priceKES}, ${item.id})">Place Bid</button>
+      <p>Price: KSh ${price.toLocaleString()}</p>
+      <button onclick="bid(${price}, ${item.id})">Place Bid</button>
     `;
 
     container.appendChild(div);
@@ -62,9 +74,9 @@ async function loadAuctions() {
 function bid(currentPrice, id) {
   const amount = Number(prompt("Enter your bid in KSh:"));
 
-  if (amount > currentPrice) {
+  if (isValidBid(currentPrice, amount)) {
     let bids = JSON.parse(localStorage.getItem("bids")) || {};
-    bids[id] = amount;
+    bids = saveBid(bids, id, amount);
     localStorage.setItem("bids", JSON.stringify(bids));
     alert("Bid accepted!");
   } else {
@@ -72,7 +84,6 @@ function bid(currentPrice, id) {
   }
 }
 
-/* ---------------- DASHBOARD ---------------- */
 
 function loadDashboard() {
   const totalBids = document.getElementById("totalBids");
@@ -85,35 +96,22 @@ function loadDashboard() {
   const values = Object.values(bids);
 
   totalBids.innerText = values.length;
-  highestBid.innerText = "KSh " + (values.length ? Math.max(...values) : 0).toLocaleString();
+  highestBid.innerText = "KSh " + (values.length ? Math.max(...values) : 0);
 
   bidList.innerHTML = "";
-
-  if (values.length === 0) {
-    bidList.innerHTML = "<p>No bids yet</p>";
-    return;
-  }
 
   Object.entries(bids).forEach(([id, amount]) => {
     const card = document.createElement("div");
     card.className = "card";
 
     card.innerHTML = `
-      <h4>Item ID: ${id}</h4>
-      <p>Bid: KSh ${amount.toLocaleString()}</p>
+      <h4>Item ${id}</h4>
+      <p>KSh ${amount}</p>
       <button onclick="deleteBid('${id}')">Delete</button>
     `;
 
     bidList.appendChild(card);
   });
-
-  if (!document.getElementById("clearBtn")) {
-    const btn = document.createElement("button");
-    btn.id = "clearBtn";
-    btn.innerText = "Clear All Bids";
-    btn.onclick = clearBids;
-    document.body.appendChild(btn);
-  }
 }
 
 function deleteBid(id) {
@@ -126,4 +124,14 @@ function deleteBid(id) {
 function clearBids() {
   localStorage.removeItem("bids");
   loadDashboard();
+}
+
+
+
+if (typeof module !== "undefined") {
+  module.exports = {
+    convertToKES,
+    isValidBid,
+    saveBid
+  };
 }

@@ -1,0 +1,23 @@
+{
+  "name": "auction",
+  "version": "1.0.0",
+  "description": "Auctora is a simple web-based auction system built using HTML, CSS, and JavaScript. It allows users to view items, place bids, and see prices converted into Kenyan Shillings (KSh).",
+  "main": "script.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gloriaw12198-lab/Auction.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/gloriaw12198-lab/Auction/issues"
+  },
+  "homepage": "https://github.com/gloriaw12198-lab/Auction#readme",
+  "devDependencies": {
+    "jest": "^30.3.0"
+  }
+}
