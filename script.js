@@ -1,37 +1,19 @@
-/* =======================
-   CONSTANTS
-======================= */
+
 const API = "https://dummyjson.com/products";
 const USD_TO_KES = 160;
 
-/* =======================
-   STATE
-======================= */
 let allProducts = [];
 
-/* =======================
-   PURE FUNCTIONS (TESTABLE)
-======================= */
-
-// Convert USD → KSh
 function convertToKES(usd) {
   return Math.round(usd * USD_TO_KES);
 }
 
-// Validate bid
 function isValidBid(currentPrice, bidAmount) {
   return bidAmount > currentPrice;
 }
-
-// Save bid
 function saveBid(bids, id, amount) {
   return { ...bids, [id]: amount };
 }
-
-/* =======================
-   AUTH (ADMIN)
-======================= */
-
 function login() {
   const user = document.getElementById("username")?.value;
   const pass = document.getElementById("password")?.value;
@@ -108,11 +90,6 @@ function displayProducts(products) {
     container.appendChild(div);
   });
 }
-
-/* =======================
-   SEARCH
-======================= */
-
 function searchProducts() {
   const input = document.getElementById("searchInput");
   if (!input) return;
@@ -125,10 +102,6 @@ function searchProducts() {
 
   displayProducts(filtered);
 }
-
-/* =======================
-   BIDDING
-======================= */
 
 function bid(currentPrice, id) {
   const amount = Number(prompt("Enter your bid in KSh:"));
@@ -145,11 +118,6 @@ function bid(currentPrice, id) {
     alert("Bid must be higher than current price!");
   }
 }
-
-/* =======================
-   DASHBOARD
-======================= */
-
 function loadDashboard() {
   const total = document.getElementById("totalBids");
   const highest = document.getElementById("highestBid");
@@ -182,8 +150,6 @@ function loadDashboard() {
 
     list.appendChild(div);
   });
-
-  // Add clear button once
   if (!document.getElementById("clearBtn")) {
     const btn = document.createElement("button");
     btn.id = "clearBtn";
@@ -205,11 +171,6 @@ function clearBids() {
   localStorage.removeItem("bids");
   loadDashboard();
 }
-
-/* =======================
-   SAFE DOM LOADING (IMPORTANT FIX)
-======================= */
-
 if (typeof document !== "undefined") {
   document.addEventListener("DOMContentLoaded", () => {
     protectAdmin();
@@ -222,8 +183,6 @@ if (typeof document !== "undefined") {
     }
   });
 }
-
-
 if (typeof module !== "undefined") {
   module.exports = {
     convertToKES,
